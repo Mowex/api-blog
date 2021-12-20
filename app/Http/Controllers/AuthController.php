@@ -93,7 +93,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errores()->toJson, 400);
+            return response()->json($validator->errors(), 400);
         }
 
         $user = User::create(array_merge(
@@ -102,7 +102,7 @@ class AuthController extends Controller
         ));
 
         return response()->json([
-            'message' => 'Usuario registrado correctamente',
+            'message' => 'user created successfully',
             'user' => $user
         ], 201);
     }
