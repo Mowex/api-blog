@@ -10,14 +10,24 @@ use Illuminate\Support\Facades\Auth;
 class PostController extends Controller
 {
     /**
+     * Create a new AuthController instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $post = Post::with('user')->get();
-        return $post;
+        $posts = Post::with(['user', 'categories'])->get();
+        return response()->json(['posts' => $posts], 200);
     }
 
     /**
@@ -31,16 +41,21 @@ class PostController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string',
             'text' => 'required|string',
+            'categories' => 'array',
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json(['error' => $validator->errors()], 400);
         }
 
         $post = Post::create(array_merge(
             $validator->validate(),
             ['user_id' => Auth::id()]
         ));
+
+        if (!!$request->categories) {
+            $post->categories()->sync($request->categories);
+        }
 
         return response()->json([
             'message' => 'Post created successfully',
@@ -57,7 +72,7 @@ class PostController extends Controller
     public function show($id)
     {
         $post = Post::with('user')->findOrFail($id);
-        return $post;
+        return response()->json($post, 200);
     }
 
     /**
@@ -72,10 +87,11 @@ class PostController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string',
             'text' => 'required|string',
+            'categories' => 'array',
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json(['error' => $validator->errors()], 400);
         }
 
         $post = Post::findOrFail($id);
@@ -88,6 +104,11 @@ class PostController extends Controller
 
         $post->title = $request->title;
         $post->text = $request->text;
+
+        if (!!$request->categories) {
+            $post->categories()->sync($request->categories);
+        }
+
         $post->save();
 
         return response()->json([

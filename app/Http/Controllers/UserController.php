@@ -27,7 +27,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::all();
-        return $users;
+        return response()->json(['users' => $users], 200);
     }
 
     /**
@@ -51,7 +51,7 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::findOrFail($id);
-        return $user;
+        return response()->json($user, 200);
     }
 
     /**
@@ -70,7 +70,7 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json(['error' => $validator->errors()], 400);
         }
 
         $user = User::findOrFail($id);
@@ -80,7 +80,7 @@ class UserController extends Controller
         $user->save();
 
         return response()->json([
-            'message' => 'user updated successfully',
+            'message' => 'User updated successfully',
             'user' => $user
         ], 201);
     }
@@ -97,7 +97,7 @@ class UserController extends Controller
         $user->delete();
 
         return response()->json([
-            'message' => 'user deleted successfully',
+            'message' => 'User deleted successfully',
             'user' => $user
         ], 200);
     }

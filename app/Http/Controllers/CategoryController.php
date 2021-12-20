@@ -3,9 +3,22 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Category;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
+    /**
+     * Create a new AuthController instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -13,17 +26,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $categories = category::all();
+        return response()->json(['categories' => $categories], 200);
     }
 
     /**
@@ -34,7 +38,20 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+
+        $category = Category::create($request->all());
+
+        return response()->json([
+            'message' => 'Category created successfully',
+            'category' => $category
+        ], 201);
     }
 
     /**
@@ -45,18 +62,8 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        $category = Category::findOrFail($id);
+        return response()->json($category, 200);
     }
 
     /**
@@ -68,7 +75,22 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+
+        $category = Category::findOrFail($id);
+        $category->name = $request->name;
+        $category->save();
+
+        return response()->json([
+            'message' => 'Category updated successfully',
+            'category' => $category
+        ], 201);
     }
 
     /**
@@ -79,6 +101,12 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $category = Category::findOrFail($id);
+        $category->delete();
+
+        return response()->json([
+            'message' => 'Category deleted successfully',
+            'category' => $category
+        ], 200);
     }
 }
