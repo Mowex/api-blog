@@ -19,6 +19,14 @@ class UserController extends Controller
         $this->middleware('auth:api');
     }
 
+    public function validationRules() {
+        return [
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string|min:4'
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -63,11 +71,7 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
-            'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|min:4'
-        ]);
+        $validator = Validator::make($request->all(), $this->validationRules());
 
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);

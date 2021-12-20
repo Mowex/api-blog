@@ -19,6 +19,12 @@ class CategoryController extends Controller
         $this->middleware('auth:api');
     }
 
+    public function validationRules() {
+        return [
+            'name' => 'required|string',
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -38,9 +44,7 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
-        ]);
+        $validator = Validator::make($request->all(), $this->validationRules());
 
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);
@@ -75,9 +79,7 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
-        ]);
+        $validator = Validator::make($request->all(), $this->validationRules());
 
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);

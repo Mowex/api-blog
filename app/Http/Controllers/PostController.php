@@ -19,6 +19,14 @@ class PostController extends Controller
         $this->middleware('auth:api');
     }
 
+    public function validationRules() {
+        return [
+            'title' => 'required|string',
+            'text' => 'required|string',
+            'categories' => 'array',
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -38,11 +46,7 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string',
-            'text' => 'required|string',
-            'categories' => 'array',
-        ]);
+        $validator = Validator::make($request->all(), $this->validationRules());
 
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);
@@ -84,11 +88,7 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string',
-            'text' => 'required|string',
-            'categories' => 'array',
-        ]);
+        $validator = Validator::make($request->all(), $this->validationRules());
 
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);
