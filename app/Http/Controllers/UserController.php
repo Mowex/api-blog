@@ -70,7 +70,7 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errores()->toJson, 400);
+            return response()->json($validator->errors(), 400);
         }
 
         $user = User::findOrFail($id);
